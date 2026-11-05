@@ -1,0 +1,38 @@
+package com.klef.ms.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import feign.RequestInterceptor;
+
+@Configuration
+public class FeignConfig 
+{
+    @Bean
+    public RequestInterceptor requestInterceptor() {
+
+        return requestTemplate -> {
+
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes)
+                    RequestContextHolder.getRequestAttributes();
+
+            if (attributes != null) {
+
+                String authorization =
+                        attributes.getRequest()
+                                  .getHeader("Authorization");
+
+                if (authorization != null) {
+
+                    requestTemplate.header(
+                            "Authorization",
+                            authorization
+                    );
+                }
+            }
+        };
+    }
+}
